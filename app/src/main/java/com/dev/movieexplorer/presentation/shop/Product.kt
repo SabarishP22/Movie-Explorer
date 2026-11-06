@@ -29,7 +29,67 @@ data class CartLine(
     val key: String = "$productId:$colorName"
 }
 
-data class PlacedOrder(
+enum class TrackingStage(val label: String) {
+    Placed("Order placed"),
+    Packed("Packed"),
+    Shipped("Shipped"),
+    OutForDelivery("Out for delivery"),
+    Delivered("Delivered"),
+}
+
+data class TrackingEvent(
+    val title: String,
+    val detail: String,
+    val time: String,
+)
+
+data class ShopOrder(
+    val id: String,
     val lines: List<CartLine>,
     val total: Double,
+    val stage: TrackingStage,
+    val eta: String,
+    val placedOn: String,
+    val address: String,
+    val carrier: String,
+    val events: List<TrackingEvent>,
+)
+
+data class SavedAddress(
+    val id: String,
+    val label: String,
+    val person: String,
+    val lines: String,
+    val phone: String,
+)
+
+data class SavedCard(
+    val id: String,
+    val brand: String,
+    val last4: String,
+    val expiry: String,
+    val color: Color,
+)
+
+data class Coupon(
+    val code: String,
+    val title: String,
+    val detail: String,
+    val off: Double,
+)
+
+data class ShopNotification(
+    val id: String,
+    val title: String,
+    val body: String,
+    val time: String,
+    val read: Boolean,
+)
+
+data class ShopProfile(
+    val name: String,
+    val email: String,
+    val phone: String,
+    val membership: String,
+    val memberSince: String,
 )

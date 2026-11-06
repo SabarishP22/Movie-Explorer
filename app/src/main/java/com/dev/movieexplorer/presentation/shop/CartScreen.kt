@@ -26,12 +26,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,7 +46,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CartScreen(
     lines: List<CartLine>,
+    merchandise: Double,
+    discount: Double,
     total: Double,
+    addressLabel: String,
+    onChangeAddress: () -> Unit,
+    onOpenCoupons: () -> Unit,
     onIncrement: (String) -> Unit,
     onDecrement: (String) -> Unit,
     onCheckout: () -> Unit,
@@ -103,14 +111,76 @@ fun CartScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .padding(bottom = bottomInset + 96.dp),
+                .padding(bottom = bottomInset + 124.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Surface(
+                onClick = onChangeAddress,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface,
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(
+                        Icons.Filled.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "Deliver to", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            text = addressLabel,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                    Text(
+                        text = "Change",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = "Coupons", style = MaterialTheme.typography.bodyLarge)
+                TextButton(onClick = onOpenCoupons) {
+                    Text(if (discount > 0) "Change" else "Apply")
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(text = "Subtotal", style = MaterialTheme.typography.titleMedium)
+                Text(text = "Subtotal", style = MaterialTheme.typography.bodyLarge)
+                Text(text = formatPrice(merchandise), style = MaterialTheme.typography.bodyLarge)
+            }
+            if (discount > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(text = "Coupon", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = "-${formatPrice(discount)}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(text = "To pay", style = MaterialTheme.typography.titleMedium)
                 Text(
                     text = formatPrice(animatedTotal.toDouble()),
                     style = MaterialTheme.typography.titleMedium,

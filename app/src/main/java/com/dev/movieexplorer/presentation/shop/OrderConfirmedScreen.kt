@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,8 +37,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun OrderConfirmedScreen(
-    order: PlacedOrder?,
+    order: ShopOrder?,
     onContinue: () -> Unit,
+    onTrack: () -> Unit,
+    onOrders: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var play by remember { mutableStateOf(false) }
@@ -100,21 +104,38 @@ fun OrderConfirmedScreen(
                 if (order != null) {
                     val pieces = order.lines.sumOf { it.quantity }
                     Text(
+                        text = order.id,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
                         text = "$pieces items  ·  ${formatPrice(order.total)}",
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    order.lines.forEach { line ->
-                        val title = SampleCatalog.find(line.productId)?.title ?: return@forEach
-                        Text(
-                            text = "${line.quantity} × $title",
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
+                    Text(
+                        text = order.eta,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Button(
+                        onClick = onTrack,
+                        modifier = Modifier
+                            .padding(top = 12.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Text("Track this order")
+                    }
+                    OutlinedButton(
+                        onClick = onOrders,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Text("Your orders")
                     }
                 }
                 Button(
                     onClick = onContinue,
-                    modifier = Modifier.padding(top = 12.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                 ) {
                     Text("Continue shopping")

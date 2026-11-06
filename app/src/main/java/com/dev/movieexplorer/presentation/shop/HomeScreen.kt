@@ -96,7 +96,7 @@ fun HomeScreen(
             start = 16.dp,
             end = 16.dp,
             top = topInset + 12.dp,
-            bottom = bottomInset + 96.dp,
+            bottom = bottomInset + 124.dp,
         ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),

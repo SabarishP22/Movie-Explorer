@@ -3,7 +3,10 @@ package com.dev.movieexplorer.presentation.shop
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,7 +29,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,6 +60,8 @@ fun ProductScreen(
     cartCount: Int,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
+    saved: Boolean,
+    onToggleSaved: () -> Unit,
     onBack: () -> Unit,
     onOpenCart: () -> Unit,
     onCartAnchor: (Offset) -> Unit,
@@ -62,6 +70,11 @@ fun ProductScreen(
 ) {
     var selected by rememberSaveable { mutableStateOf(product.colors.first().name) }
     var buttonCenter by remember { mutableStateOf(Offset.Unspecified) }
+    val heartScale by animateFloatAsState(
+        targetValue = if (saved) 1.15f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "heart",
+    )
     val topInset = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val bottomInset = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 
@@ -86,6 +99,17 @@ fun ProductScreen(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            IconButton(onClick = onToggleSaved) {
+                Icon(
+                    imageVector = if (saved) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                    contentDescription = if (saved) "Remove from wishlist" else "Save to wishlist",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = heartScale
+                        scaleY = heartScale
+                    },
+                )
+            }
             IconButton(onClick = onOpenCart) {
                 CartBadgeIcon(count = cartCount, onAnchor = onCartAnchor)
             }
@@ -121,6 +145,11 @@ fun ProductScreen(
                     )
                 }
                 Text(text = product.blurb, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = "Free delivery by Sunday with Parcel Plus",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
                 Text(text = "Color", style = MaterialTheme.typography.titleMedium)
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     product.colors.forEach { swatch ->
@@ -128,6 +157,17 @@ fun ProductScreen(
                             swatch = swatch,
                             selected = swatch.name == selected,
                             onClick = { selected = swatch.name },
+                        )
+                    }
+                }
+                Text(text = "Reviews", style = MaterialTheme.typography.titleMedium)
+                sampleReviews(product).forEach { (name, quote) ->
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(text = name, style = MaterialTheme.typography.labelLarge)
+                        Text(
+                            text = quote,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -147,6 +187,14 @@ fun ProductScreen(
             Text("Add to cart")
         }
     }
+}
+
+private fun sampleReviews(product: Product): List<Pair<String, String>> {
+    return listOf(
+        "Maya R." to "Packed carefully. ${product.title} looks like the photo.",
+        "Rohit K." to "Arrived a day early. Would order again.",
+        "Leah P." to "Color is true and the finish feels solid.",
+    )
 }
 
 @Composable
